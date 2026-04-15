@@ -5,14 +5,21 @@ log = core.getLogger()
 
 mac_to_port = {}
 
+# 🔥 WHEN SWITCH CONNECTS
+def _handle_ConnectionUp(event):
+    log.info(f"Switch {event.dpid} CONNECTED")
+
+# 🔥 WHEN SWITCH DISCONNECTS
+def _handle_ConnectionDown(event):
+    log.info(f"Switch {event.dpid} DISCONNECTED")
+
+# 🔥 PACKET HANDLING
 def _handle_PacketIn(event):
     packet = event.parsed
 
-    # Safety check
     if not packet.parsed:
         return
 
-    # Allow only ARP and IP packets
     if packet.type not in (0x0800, 0x0806):
         return
 
@@ -22,7 +29,7 @@ def _handle_PacketIn(event):
     src = packet.src
     dst = packet.dst
 
-    # Learn MAC address
+    # Learn MAC
     mac_to_port[dpid][src] = event.port
 
     if dst in mac_to_port[dpid]:
@@ -32,7 +39,7 @@ def _handle_PacketIn(event):
 
     actions = [of.ofp_action_output(port=out_port)]
 
-    # Install flow rule
+    # Install flow
     if out_port != of.OFPP_FLOOD:
         match = of.ofp_match()
         match.dl_dst = dst
@@ -51,5 +58,8 @@ def _handle_PacketIn(event):
 
 
 def launch():
+    core.openflow.addListenerByName("ConnectionUp", _handle_ConnectionUp)
+    core.openflow.addListenerByName("ConnectionDown", _handle_ConnectionDown)
     core.openflow.addListenerByName("PacketIn", _handle_PacketIn)
+
     log.info("POX Controller Running...")
