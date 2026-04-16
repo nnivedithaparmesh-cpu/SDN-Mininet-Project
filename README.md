@@ -1,89 +1,102 @@
-# SDN Mininet Project
+SDN Project using Mininet and POX Controller
+📌 Project Title
 
-## Topic
-Link Failure Detection and Recovery using SDN
+Software Defined Networking (SDN) Simulation using Mininet and POX Controller
 
-## Description
-In this project, I have implemented a simple SDN network using Mininet and POX controller. The main aim is to understand how the controller communicates with switches and how flow rules are installed.
+🎯 Project Description
 
-The controller used here is POX with a learning switch logic. It handles packet_in events and installs flow rules based on MAC addresses.
+This project demonstrates the working of a Software Defined Network (SDN) using:
 
----
+Mininet → to create virtual network topology (hosts + switches)
+POX Controller → to control the network behavior
+OpenFlow Protocol → communication between switches and controller
 
-## Topology
-The network consists of:
-- 2 hosts (h1, h2)
-- 3 switches (s1, s2, s3)
+The main objective is to implement a learning-based Layer 2 switch using SDN concepts, where the controller dynamically learns MAC addresses and installs flow rules in switches.
 
-The switches are connected in such a way that there is an alternate path available. This helps in testing link failure and recovery.
+🧠 Key Concepts Used
+SDN (Software Defined Networking)
+OpenFlow 1.0 protocol
+Packet-In and Flow-Mod messages
+MAC learning (Layer 2 switching)
+Event-driven controller programming
+Network topology simulation using Mininet
+🏗️ Project Architecture
+        +----------------------+
+        |   POX Controller     |
+        |  (Control Plane)     |
+        +----------+-----------+
+                   |
+        OpenFlow Protocol
+                   |
+  -----------------------------------
+  |            |            |       |
+ Switch s1   s2           s3   (Data Plane)
+  |            |            |
+ h1           h2           h3
+⚙️ Working Flow
+Hosts send data packets
+Switch receives unknown packets
+Switch forwards Packet-In to controller
+Controller:
+Learns source MAC address
+Determines output port
+Installs flow rule in switch
+Switch forwards future packets directly without controller
+📂 Project Files
+1. controller_pox.py
 
----
+Custom POX controller that:
 
-## How to Run
+Handles switch connection/disconnection
+Learns MAC addresses
+Implements learning switch logic
+Installs flow rules using OpenFlow messages
+2. topology.py
 
-### Step 1: Start controller
-cd ~/pox  
-./pox.py forwarding.l2_learning  
+Core POX topology module (framework file):
 
-### Step 2: Run topology
-sudo mn -c  
-sudo python3 topology.py  
+Maintains network entities (hosts, switches, links)
+Handles events like Join/Leave
+Tracks network state inside controller
+🚀 How to Run the Project
+🟢 Step 1: Start POX Controller
+cd ~/pox
+./pox.py openflow.of_01 misc.controller_pox
+🔵 Step 2: Start Mininet (New Terminal)
+sudo mn --topo linear,3 --controller=remote
+🟡 Step 3: Inside Mininet CLI
+Check connectivity:
+pingall
+Test link failure:
+link s1 s2 down
+pingall
+Restore link:
+link s1 s2 up
+pingall
+Exit Mininet:
+exit
+🔴 Step 4: Stop Controller
 
----
+In POX terminal:
 
-## Testing
+Ctrl + C
+📊 Expected Output
+Switches connect to controller successfully
+MAC addresses are learned dynamically
+Packets are forwarded efficiently
+Network adapts to link failure and recovery
+Full connectivity is restored after link repair
+🔥 Features Implemented
+✔ Learning switch behavior
+✔ Dynamic flow rule installation
+✔ Real-time packet handling
+✔ Controller-switch communication
+✔ Link failure testing using Mininet
+⚠️ Requirements
+Linux (Ubuntu recommended / VirtualBox supported)
+Python 3.6 – 3.9 (recommended for POX)
+Mininet
+POX Controller
+📌 Conclusion
 
-### 1. Normal case
-mininet> pingall  
-
-Screenshot 1: ping working successfully  
-
----
-
-### 2. Link failure
-mininet> link s1 s2 down  
-mininet> pingall  
-
-Screenshot 2: packets are dropped  
-
----
-
-### 3. Link recovery
-mininet> link s1 s2 up  
-mininet> pingall  
-
-Screenshot 3: communication restored  
-
----
-
-## Performance
-
-### Ping
-mininet> h1 ping h2  
-
-Screenshot 4: ping output  
-
-### Throughput
-mininet> iperf h1 h2  
-
-Screenshot 5: iperf result  
-
-### Flow table
-sudo ovs-ofctl dump-flows s1  
-
-Screenshot 6: flow table entries  
-
----
-
-## Output
-- Hosts are able to communicate in normal condition  
-- When link is down, communication fails  
-- After link is restored, communication works again  
-- Flow rules are installed dynamically  
-
----
-
-## Conclusion
-This project helped me understand how SDN works. The controller controls the network and updates flow rules based on traffic. It also shows how network reacts during link failure and recovery.
-
----
+This project demonstrates how SDN separates the control plane (POX controller) from the data plane (switches), enabling centralized network control, dynamic flow management, and intelligent packet forwarding.
