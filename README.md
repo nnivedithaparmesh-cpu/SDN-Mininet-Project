@@ -29,8 +29,8 @@ The controller acts as the brain of the network and implements a learning switch
 Linear topology with 3 switches and 3 hosts:
 
 h1 --- s1 --- s2 --- s3 --- h3  
-          |  
-         h2  
+               |
+               h2
 
 ---
 
